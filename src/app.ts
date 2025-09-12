@@ -1,5 +1,7 @@
 import express, { Application, Request, Response } from 'express'
 import { errorResponse } from './helpers/response.helper'
+import { PostRouter } from './routers/post.router'
+import { ReportRouter } from './routers/report.router'
 
 class App {
     private app: Application
@@ -26,6 +28,8 @@ class App {
 
     private initRoutes(): void {
         // define routes here
+        this.app.use('/api/posts', new PostRouter().getRouter())
+        this.app.use('/api/reports', new ReportRouter().getRouter())
     }
 
     public listen(): void {

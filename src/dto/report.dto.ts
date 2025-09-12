@@ -1,7 +1,21 @@
-export interface ReportDTO {
+export interface DailyReportDTO {
     totalUsers: number;
     totalPosts: number;
-    date: string;   // untuk daily
-    month?: string; // untuk monthly
-    year?: string;  // untuk yearly
+    date: string;
 }
+
+export interface MonthlyReportDTO {
+    totalUsers: number;
+    totalPosts: number;
+    month: string;
+    year: string;
+}
+
+export interface YearlyReportDTO {
+    totalUsers: number;
+    totalPosts: number;
+    year: string;
+}
+
+// Union type: laporan bisa salah satu dari tiga
+export type ReportDTO = DailyReportDTO | MonthlyReportDTO | YearlyReportDTO;
