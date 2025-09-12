@@ -11,7 +11,7 @@ export class ReportRouter {
         this.initializeRoutes();
     }
 
-    private initializeRoutes() {
+    private initializeRoutes(): void {
         this.router.get("/daily", this.reportController.getDailyReport.bind(this.reportController));
         this.router.get("/monthly", this.reportController.getMonthlyReport.bind(this.reportController));
         this.router.get("/yearly", this.reportController.getYearlyReport.bind(this.reportController));

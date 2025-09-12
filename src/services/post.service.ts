@@ -6,11 +6,12 @@ const prisma = new PrismaClient();
 
 export class PostService {
     public async create(profileId: string, data: CreatePostDTO) {
+        console.log('prof id : ', profileId)
         return prisma.post.create({
             data: {
                 title: data.title,
                 content: data.content,
-                profileId,
+                profileId: profileId,
             },
         });
     }

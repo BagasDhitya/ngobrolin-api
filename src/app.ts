@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express'
 import { errorResponse } from './helpers/response.helper'
 import { PostRouter } from './routers/post.router'
 import { ReportRouter } from './routers/report.router'
+import { AuthRouter } from './routers/auth.router'
 
 class App {
     private app: Application
@@ -17,8 +18,8 @@ class App {
     }
 
     private initErrorHandlers(): void {
-        this.app.use((err: unknown, req: Request, res: Response) => {
-            errorResponse(res, err)
+        this.app.use((req: Request, res: Response) => {
+            errorResponse(res, req)
         })
     }
 
@@ -30,6 +31,7 @@ class App {
         // define routes here
         this.app.use('/api/posts', new PostRouter().getRouter())
         this.app.use('/api/reports', new ReportRouter().getRouter())
+        this.app.use('/api/auth', new AuthRouter().getRouter())
     }
 
     public listen(): void {
