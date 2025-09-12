@@ -1,11 +1,7 @@
-// DTO untuk Post
-
-export interface CreatePostDto {
-    title: string;
-    content: string;
-}
-
-export interface UpdatePostDto {
-    title?: string;
-    content?: string;
+export interface ReportDTO {
+    totalUsers: number;
+    totalPosts: number;
+    date: string;   // untuk daily
+    month?: string; // untuk monthly
+    year?: string;  // untuk yearly
 }

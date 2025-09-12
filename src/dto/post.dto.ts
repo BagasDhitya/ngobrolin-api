@@ -1,11 +1,9 @@
-// DTO untuk Post
-
-export interface CreatePostDto {
+export interface CreatePostDTO {
     title: string;
     content: string;
 }
 
-export interface UpdatePostDto {
+export interface UpdatePostDTO {
     title?: string;
     content?: string;
 }

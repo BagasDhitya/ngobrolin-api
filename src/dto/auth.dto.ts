@@ -1,12 +1,10 @@
-// DTO untuk registrasi & login
-
-export interface RegisterDto {
+export interface RegisterDTO {
     email: string;
     password: string;
     avatar?: string;
 }
 
-export interface LoginDto {
+export interface LoginDTO {
     email: string;
     password: string;
 }
