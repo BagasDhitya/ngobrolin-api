@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET as string
 const JWT_EXPIRES_IN = parseInt(process.env.JWT_EXPIRES_IN as string)
 
 export interface TokenPayload {
-    id: number,
+    id: string,
     email: string,
     role: 'USER' | 'SUPERADMIN'
 }
