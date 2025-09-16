@@ -4,15 +4,27 @@ import { hash, compare } from 'bcrypt'
 import { AppError } from "../helpers/response.helper";
 
 import { JWTHelper } from "../helpers/jwt.helper";
+import { CloudinaryHelper } from "../helpers/cloudinary.helper";
+
+const cloudinaryHelper = new CloudinaryHelper()
 
 export class AuthService {
     public async register(data: RegisterDTO) {
         const hashedPassword = await hash(data.password, 10)
+
+        let avatarUrl: string | undefined = undefined
+
+        // kalau avatarnya ada, upload ke cloudinary
+        if (data.avatar && data.avatar.buffer) {
+            avatarUrl = await cloudinaryHelper.uploadImageFromBuffer(data.avatar.buffer, 'avatars')
+        }
+
+        // masukkan url avatar yang diproses cloudinary ke db
         const user = await prisma.profile.create({
             data: {
                 email: data.email,
                 password: hashedPassword,
-                avatar: data.avatar,
+                avatar: avatarUrl,
                 role: 'USER'
             }
         })

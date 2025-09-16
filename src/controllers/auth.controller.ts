@@ -12,13 +12,18 @@ export class AuthController {
     }
 
     public async register(req: Request, res: Response) {
-        const { email, password, avatar }: RegisterDTO = req.body
+        const { email, password }: RegisterDTO = req.body
+        const avatarFile = req.file // penyimpanan file di multer (sementara)
 
         if (!email || !password) {
             throw new AppError('Email or password is missing', 400)
         }
 
-        const user = await this.authService.register({ email, password, avatar })
+        const user = await this.authService.register({
+            email,
+            password,
+            avatar: avatarFile // file diupload ke cloudinary
+        })
         successResponse(res, user, 'Success register', 201)
     }
 
