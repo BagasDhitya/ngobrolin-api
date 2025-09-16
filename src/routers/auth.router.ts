@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller";
 import { uploadAvatar } from "../helpers/multer.helper";
+import { validate } from "../middlewares/validate.middleware";
+
+import { registerSchema, loginSchema } from "../types/validators/auth.validator";
 
 export class AuthRouter {
     private router: Router
@@ -13,8 +16,8 @@ export class AuthRouter {
     }
 
     private initRoutes() {
-        this.router.post('/register', uploadAvatar.single('avatar'), this.authController.register.bind(this.authController))
-        this.router.post('/login', this.authController.login.bind(this.authController))
+        this.router.post('/register', uploadAvatar.single('avatar'), validate(registerSchema), this.authController.register.bind(this.authController))
+        this.router.post('/login', validate(loginSchema), this.authController.login.bind(this.authController))
     }
 
     public getRouter(): Router {
