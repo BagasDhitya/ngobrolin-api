@@ -31,13 +31,13 @@ export class AuthController {
     }
 
     public async login(req: Request, res: Response) {
-        const { email, password }: LoginDTO = req.body
+        const { email, password, otp }: LoginDTO = req.body
 
-        if (!email || !password) {
-            throw new AppError('Email or password is missing', 400)
+        if (!email || !password || !otp) {
+            throw new AppError('Email or password or OTP is missing', 400)
         }
 
-        const user = await this.authService.login({ email, password })
+        const user = await this.authService.login({ email, password, otp })
         successResponse(res, user, 'Success login', 201)
     }
 

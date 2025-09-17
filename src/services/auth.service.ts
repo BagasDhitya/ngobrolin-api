@@ -1,12 +1,17 @@
+import { hash, compare } from "bcrypt";
+
 import { prisma } from "../config/prisma";
 import { RegisterDTO, LoginDTO } from "../dto/auth.dto";
-import { hash, compare } from 'bcrypt'
-import { AppError } from "../helpers/response.helper";
 
+import { AppError } from "../helpers/response.helper";
 import { JWTHelper } from "../helpers/jwt.helper";
 import { CloudinaryHelper } from "../helpers/cloudinary.helper";
+import { MailerHelper } from "../helpers/mailer.helper";
+
+import { otpEmail } from "../types/templates/otpEmail";
 
 const cloudinaryHelper = new CloudinaryHelper()
+const mailerHelper = new MailerHelper()
 
 export class AuthService {
     public async register(data: RegisterDTO) {
@@ -29,10 +34,28 @@ export class AuthService {
             }
         })
 
-        return user
+        // Generate OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+        const expiredAt = new Date(Date.now() + 5 * 60 * 1000) // kadaluarsa 5 menit
+
+        await prisma.otpCode.create({
+            data: {
+                code: otpCode,
+                expiredAt: expiredAt,
+                userId: user.id
+            }
+        })
+
+        // Kirim ke email user
+        const html = otpEmail(otpCode)
+        await mailerHelper.sendMail(user.email, 'Account Verification', html)
+
+        return {
+            message: 'User registered, OTP sent to email'
+        }
     }
 
-    public async login(data: LoginDTO) {
+    public async login(data: LoginDTO & { otp: string }) {
         const user = await prisma.profile.findUnique({
             where: {
                 email: data.email
@@ -44,6 +67,26 @@ export class AuthService {
         const isValid = await compare(data.password, user.password)
 
         if (!isValid) throw new AppError('Password not valid', 400)
+
+        // Cek OTP
+        const otp = await prisma.otpCode.findFirst({
+            where: {
+                userId: user.id,
+                code: data.otp,
+                used: false,
+                expiredAt: {
+                    gt: new Date()
+                }
+            }
+        })
+
+        if (!otp) throw new AppError('OTP not valid or expired', 400)
+
+        // Tandai OTP sebagai used
+        await prisma.otpCode.update({
+            where: { id: otp.id },
+            data: { used: true }
+        })
 
         // proses generate token setelah pengecekan semuanya
         const jwtHelper = new JWTHelper()

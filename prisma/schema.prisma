@@ -18,7 +18,8 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  posts Post[]
+  posts   Post[]
+  OtpCode OtpCode[]
 }
 
 model Post {
@@ -30,6 +31,16 @@ model Post {
 
   profile   Profile @relation(fields: [profileId], references: [id])
   profileId String
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  expiredAt DateTime
+  used      Boolean  @default(false)
+
+  user Profile @relation(fields: [userId], references: [id])
 }
 
 enum Role {
