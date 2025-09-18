@@ -1,4 +1,4 @@
-name: CI - Run Jest Tests
+name: CI - Run Jest Tests with Notifications
 
 on:
   push:
@@ -22,22 +22,23 @@ jobs:
         run: npm install
 
       - name: Run Jest tests
+        id: jest
         run: npm test
+        continue-on-error: true # supaya workflow tetap lanjut meski test gagal
 
-      # Notify Discord on success
-      - name: Notify Discord on success
-        if: success()
+      # Get commit info
+      - name: Get Commit Info
+        id: commit_info
         run: |
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+          echo "COMMIT_AUTHOR=$(git log -1 --pretty=%an)" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      # Notify Discord
+      - name: Notify Discord
+        run: |
+          STATUS=$([[ "${{ steps.jest.outcome }}" == "success" ]] && echo "✅ Success" || echo "❌ Failed")
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d '{"content":"✅ Tests passed successfully on branch **'${GITHUB_REF#refs/heads/}'**!"}' \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-      # Notify Discord on failure
-      - name: Notify Discord on failure
-        if: failure()
-        run: |
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d '{"content":"❌ Tests failed on branch **'${GITHUB_REF#refs/heads/}'**! Please check logs."}' \
+               -d "{\"content\":\"${STATUS} on branch **${BRANCH_NAME}**\nCommit: ${COMMIT_MESSAGE}\nAuthor: ${COMMIT_AUTHOR}\"}" \
                ${{ secrets.DISCORD_WEBHOOK_URL }}
