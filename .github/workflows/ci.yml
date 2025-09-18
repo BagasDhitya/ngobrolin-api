@@ -12,12 +12,32 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with: 
-            node-version: 20
+        with:
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
+
       - name: Run Jest tests
         run: npm test
+
+      # Notify Discord on success
+      - name: Notify Discord on success
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{"content":"✅ Tests passed successfully on branch **'${GITHUB_REF#refs/heads/}'**!"}' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      # Notify Discord on failure
+      - name: Notify Discord on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{"content":"❌ Tests failed on branch **'${GITHUB_REF#refs/heads/}'**! Please check logs."}' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
