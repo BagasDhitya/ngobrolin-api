@@ -12,14 +12,12 @@ export class PostController {
 
     public async create(req: Request, res: Response, next: NextFunction) {
         const body: CreatePostDTO = req.body;
-        console.log('body : ', body)
-        console.log('req user id : ', req.user)
 
         if (!body.title || !body.content) {
             throw new AppError("Title and content are required", 400);
         }
 
-        const post = await this.postService.create(req.user.id, body);
+        const post = await this.postService.create((req as any).user?.id, body);
         return successResponse(res, post, "Post created", 201);
     }
 

@@ -17,8 +17,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 
     try {
         const jwtHelper = new JWTHelper()
-        const decoded = jwtHelper.verifyToken(token)
-        req.user = decoded
+        const decoded = jwtHelper.verifyToken(token) as TokenPayload
+        (req as any).user = decoded
         next()
     } catch (error) {
         throw new AppError((error as Error).message, 401)
@@ -26,7 +26,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 }
 
 export function authorize(req: Request, res: Response, next: NextFunction) {
-    if (req.user.role !== 'SUPERADMIN') {
+    if ((req as any).user?.role !== 'SUPERADMIN') {
         throw new AppError('Forbidden: Superadmin only', 403)
     }
     next()
